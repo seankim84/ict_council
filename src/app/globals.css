@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: var(--font-dm-sans);
+  --font-body: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
+  --color-bg-primary: #0a0e1a;
+  --color-bg-secondary: #0d1421;
+  --color-bg-tertiary: #111a2e;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-subtle: rgba(59, 130, 246, 0.12);
+  --color-text-primary: #e8edf5;
+  --color-text-secondary: #8a9bb8;
+  --color-text-muted: #4a5568;
+  --color-border: rgba(59, 130, 246, 0.15);
+  --color-border-strong: rgba(59, 130, 246, 0.35);
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--color-text-primary);
+  background: radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(37, 99, 235, 0.1), transparent 35%),
+    var(--color-bg-primary);
+  font-family: var(--font-body), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-shell {
+  @apply mx-auto w-full max-w-[1320px] px-6 md:px-10 lg:px-14 xl:px-20 py-14 lg:py-20;
+}
+
+.eyebrow {
+  @apply text-xs font-mono tracking-[0.2em] uppercase text-accent mb-4;
+}
+
+.marquee-track {
+  animation: marquee-scroll 24s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
