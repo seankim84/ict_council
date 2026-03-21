@@ -16,14 +16,33 @@ const dmMono = DM_Mono({
   weight: ['300', '400', '500']
 });
 
+const TITLE = 'KOCHAM ICT 협의회';
+const DESCRIPTION =
+  '베트남 호치민 한국 ICT 기업들의 공식 네트워크. 수많은 회원사와 함께 베트남 ICT 생태계를 만들어갑니다.';
+const OG_IMAGE = '/og-image.png';
+
 export const metadata: Metadata = {
-  title: 'KOCHAM ICT Council',
-  description: 'KOCHAM ICT 협의회 공식 웹사이트',
+  title: TITLE,
+  description: DESCRIPTION,
   openGraph: {
-    title: 'KOCHAM ICT Council',
-    description: 'KOCHAM ICT 협의회 공식 웹사이트',
-    images: ['/og-image.svg']
-  }
+    type: 'website',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: TITLE,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
