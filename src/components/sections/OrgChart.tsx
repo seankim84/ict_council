@@ -72,6 +72,7 @@ export function OrgChart({ executives }: Props) {
     byRole(executives, '부회장', 0),
     byRole(executives, '부회장', 1),
     byRole(executives, '부회장', 2),
+    byRole(executives, '부회장', 3),
   ];
 
   return (
@@ -98,15 +99,17 @@ export function OrgChart({ executives }: Props) {
         {/* 회장 bottom → 수석부회장 top */}
         <line x1="480" y1="130" x2="480" y2="196" stroke="rgba(74,158,255,0.45)" strokeWidth="1" />
 
-        {/* 수석부회장 bottom → 부회장 row */}
-        <line x1="480" y1="256" x2="480" y2="267" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
-        <line x1="250" y1="267" x2="710" y2="267" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
-        <line x1="250" y1="267" x2="250" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
-        <line x1="480" y1="267" x2="480" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
-        <line x1="710" y1="267" x2="710" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
+        {/* 수석부회장 bottom → 부회장 row (4명) */}
+        {/* 수직선: 수석부회장 bottom(480,256) → 국장 bar(480,342) — VP2·VP3 사이 통과 */}
+        <line x1="480" y1="256" x2="480" y2="342" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
+        {/* 수평 bar: VP1 center(225) ~ VP4 center(735) */}
+        <line x1="225" y1="267" x2="735" y2="267" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
+        <line x1="225" y1="267" x2="225" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
+        <line x1="395" y1="267" x2="395" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
+        <line x1="565" y1="267" x2="565" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
+        <line x1="735" y1="267" x2="735" y2="278" stroke="rgba(74,158,255,0.38)" strokeWidth="1" />
 
-        {/* 부회장(center) bottom → 국장 row */}
-        <line x1="480" y1="330" x2="480" y2="342" stroke="rgba(100,220,160,0.35)" strokeWidth="1" />
+        {/* 국장 row */}
         <line x1="200" y1="342" x2="760" y2="342" stroke="rgba(100,220,160,0.35)" strokeWidth="1" />
         <line x1="200" y1="342" x2="200" y2="355" stroke="rgba(100,220,160,0.35)" strokeWidth="1" />
         <line x1="480" y1="342" x2="480" y2="355" stroke="rgba(100,220,160,0.35)" strokeWidth="1" />
@@ -166,22 +169,28 @@ export function OrgChart({ executives }: Props) {
           nameFontSize={15}
         />
 
-        {/* 부회장 3명 */}
+        {/* 부회장 4명 — centerX: 225, 395, 565, 735 */}
         <OrgCard
           role="부회장" name={vp[0]}
-          x={175} y={278} w={150} h={52}
+          x={150} y={278} w={150} h={52}
           roleColor="#6aaee8" nameFill="#c0d0e8"
           rectFill="rgba(74,158,255,0.07)" rectStroke="rgba(74,158,255,0.22)"
         />
         <OrgCard
           role="부회장" name={vp[1]}
-          x={405} y={278} w={150} h={52}
+          x={320} y={278} w={150} h={52}
           roleColor="#6aaee8" nameFill="#c0d0e8"
           rectFill="rgba(74,158,255,0.07)" rectStroke="rgba(74,158,255,0.22)"
         />
         <OrgCard
           role="부회장" name={vp[2]}
-          x={635} y={278} w={150} h={52}
+          x={490} y={278} w={150} h={52}
+          roleColor="#6aaee8" nameFill="#c0d0e8"
+          rectFill="rgba(74,158,255,0.07)" rectStroke="rgba(74,158,255,0.22)"
+        />
+        <OrgCard
+          role="부회장" name={vp[3]}
+          x={660} y={278} w={150} h={52}
           roleColor="#6aaee8" nameFill="#c0d0e8"
           rectFill="rgba(74,158,255,0.07)" rectStroke="rgba(74,158,255,0.22)"
         />
