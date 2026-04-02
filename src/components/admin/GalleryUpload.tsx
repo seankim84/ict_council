@@ -7,28 +7,29 @@ import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 
 async function uploadFile(file: File): Promise<string> {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('pathPrefix', 'gallery/images');
-  const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+  // 1단계: 서버에서 서명 URL 발급 (파일 데이터 없이 파일명/타입만 전송)
+  const urlRes = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      pathPrefix: 'gallery/images',
+      fileName: file.name,
+      contentType: file.type || 'application/octet-stream'
+    })
+  });
 
-  let body: Record<string, unknown> = {};
-  try {
-    body = (await res.json()) as Record<string, unknown>;
-  } catch {
-    // 응답 바디가 비어있거나 JSON이 아닌 경우
-  }
+  if (!urlRes.ok) throw new Error(`서명 URL 발급 실패 (${urlRes.status})`);
+  const { uploadUrl, fileUrl } = (await urlRes.json()) as { uploadUrl: string; fileUrl: string };
 
-  if (!res.ok) {
-    throw new Error(
-      typeof body.message === 'string' ? body.message : `파일 업로드 실패 (${res.status})`
-    );
-  }
+  // 2단계: Supabase에 직접 업로드 (Next.js 서버 거치지 않아 용량 제한 없음)
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    body: file,
+    headers: { 'Content-Type': file.type || 'application/octet-stream' }
+  });
 
-  if (typeof body.fileUrl !== 'string') {
-    throw new Error('업로드 응답에서 URL을 받지 못했습니다.');
-  }
-  return body.fileUrl;
+  if (!uploadRes.ok) throw new Error(`파일 업로드 실패 (${uploadRes.status})`);
+  return fileUrl;
 }
 
 interface FileEntry {

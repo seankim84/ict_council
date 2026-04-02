@@ -1,19 +1,33 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { listGallery } from '@/api/gallery/route';
+import { GalleryPreviewClient } from './GalleryPreviewClient';
+import type { GalleryEvent } from '@/components/gallery/GalleryList';
 
 export async function GalleryPreview() {
   const gallery = await listGallery();
 
-  // 이벤트별 대표 사진 1장씩, 날짜 내림차순, 최대 3개
-  const seen = new Set<string>();
-  const preview = [...gallery]
+  // 이벤트별 그룹핑
+  const eventMap = new Map<string, GalleryEvent>();
+  for (const item of gallery) {
+    if (!eventMap.has(item.eventName)) {
+      eventMap.set(item.eventName, {
+        eventName: item.eventName,
+        eventDate: item.eventDate,
+        thumbnailUrl: item.imageUrl,
+        photoCount: 1,
+        photos: [item.imageUrl],
+        createdAt: item.createdAt
+      });
+    } else {
+      const entry = eventMap.get(item.eventName)!;
+      entry.photoCount += 1;
+      entry.photos.push(item.imageUrl);
+    }
+  }
+
+  // 날짜 내림차순, 최대 3개
+  const preview = [...eventMap.values()]
     .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())
-    .filter((item) => {
-      if (seen.has(item.eventName)) return false;
-      seen.add(item.eventName);
-      return true;
-    })
     .slice(0, 3);
 
   if (preview.length === 0) return null;
@@ -29,17 +43,7 @@ export async function GalleryPreview() {
           전체 갤러리
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {preview.map((item) => (
-          <article key={item.id} className="group relative overflow-hidden rounded-xl border border-[var(--color-border)]">
-            <Image src={item.imageUrl} alt={item.eventName} width={800} height={560} className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3 text-sm">
-              <p className="font-semibold">{item.eventName}</p>
-              <p className="text-text-secondary">{item.eventDate}</p>
-            </div>
-          </article>
-        ))}
-      </div>
+      <GalleryPreviewClient events={preview} />
     </section>
   );
 }
