@@ -31,9 +31,9 @@ function MemberModal({ member, onClose }: { member: Member; onClose: () => void 
 
         {/* 헤더 */}
         <div className="mb-5 flex items-center gap-4">
-          {member.logoUrl ? (
+          {member.profilePhotoUrl || member.logoUrl ? (
             <Image
-              src={member.logoUrl}
+              src={member.profilePhotoUrl || member.logoUrl}
               alt={member.nameKo}
               width={64}
               height={64}
@@ -84,7 +84,7 @@ export default function MembersPage() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   useEffect(() => {
-    fetch('/api/members')
+    fetch('/api/members', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data: Member[]) => setAllMembers(data))
       .catch(() => {});
@@ -123,9 +123,9 @@ export default function MembersPage() {
               onClick={() => setSelectedMember(member)}
             >
               <div className="mb-4 flex items-center gap-3">
-                {member.logoUrl ? (
+                {member.profilePhotoUrl || member.logoUrl ? (
                   <Image
-                    src={member.logoUrl}
+                    src={member.profilePhotoUrl || member.logoUrl}
                     alt={member.nameKo}
                     width={96}
                     height={96}

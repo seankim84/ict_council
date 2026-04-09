@@ -60,6 +60,12 @@ export async function createMember(payload: Omit<Member, 'id' | 'createdAt' | 'u
 }
 
 export async function updateMember(id: string, payload: Partial<Member>): Promise<Member | null> {
+  const { data: beforeRow } = await supabase
+    .from('members')
+    .select('name_ko, logo_url, profile_photo_url')
+    .eq('id', id)
+    .single();
+
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (payload.nameKo !== undefined) updates.name_ko = payload.nameKo;
   if (payload.nameEn !== undefined) updates.name_en = payload.nameEn;
@@ -76,8 +82,43 @@ export async function updateMember(id: string, payload: Partial<Member>): Promis
     .select()
     .single();
 
-  if (error) return null;
-  return data ? mapRow(data) : null;
+  if (error || !data) return null;
+
+  const previousCompany = (beforeRow?.name_ko as string) ?? '';
+  const nextCompany = (data.name_ko as string) ?? previousCompany;
+  const companyChanged =
+    payload.nameKo !== undefined &&
+    previousCompany.length > 0 &&
+    previousCompany !== nextCompany;
+  const photoChanged =
+    payload.profilePhotoUrl !== undefined || payload.logoUrl !== undefined;
+
+  if (companyChanged || photoChanged) {
+    const preferredPhoto =
+      ((data.profile_photo_url as string) || (data.logo_url as string) || '').trim();
+    const companyForPhoto = companyChanged ? nextCompany : previousCompany || nextCompany;
+
+    try {
+      if (companyChanged) {
+        await supabase
+          .from('executives')
+          .update({ company: nextCompany })
+          .eq('company', previousCompany);
+      }
+
+      if (companyForPhoto) {
+        await supabase
+          .from('executives')
+          .update({ photo_url: preferredPhoto || null })
+          .eq('company', companyForPhoto);
+      }
+    } catch (syncError) {
+      // Keep member update successful even if executive sync fails.
+      console.error('Failed to sync executives after member update:', syncError);
+    }
+  }
+
+  return mapRow(data);
 }
 
 export async function deleteMember(id: string): Promise<boolean> {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { Member } from '@/types/member';
 
@@ -19,13 +20,15 @@ export default function AdminMembersPage() {
   const [modalError, setModalError] = useState('');
 
   function load() {
-    fetch('/api/members')
+    fetch('/api/members', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data: Member[]) => setMembers(data))
       .catch(() => setError('회원사 목록을 불러오지 못했습니다.'));
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function handleDelete(id: string, name: string) {
     if (!confirm(`"${name}" 회원사를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
@@ -44,8 +47,14 @@ export default function AdminMembersPage() {
 
   async function handleSetExecutive() {
     if (!modal) return;
-    if (!modal.nameKo.trim()) { setModalError('성함을 입력해주세요.'); return; }
-    if (!modal.roleKo.trim()) { setModalError('직책을 입력해주세요.'); return; }
+    if (!modal.nameKo.trim()) {
+      setModalError('성함을 입력해주세요.');
+      return;
+    }
+    if (!modal.roleKo.trim()) {
+      setModalError('직책을 입력해주세요.');
+      return;
+    }
 
     setSaving(true);
     setModalError('');
@@ -60,8 +69,8 @@ export default function AdminMembersPage() {
           roleEn: '',
           company: modal.member.nameKo,
           photoUrl: modal.member.profilePhotoUrl || modal.member.logoUrl || '',
-          order: parseInt(modal.order) || 0,
-        }),
+          order: parseInt(modal.order, 10) || 0
+        })
       });
       if (!res.ok) throw new Error();
       alert(`"${modal.member.nameKo}" 회원사를 임원진으로 등록했습니다.`);
@@ -84,7 +93,6 @@ export default function AdminMembersPage() {
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
-      {/* Mobile card list */}
       <div className="divide-y divide-[var(--color-border)] rounded-xl border border-[var(--color-border)] md:hidden">
         {members.length === 0 ? (
           <p className="p-8 text-center text-sm text-text-secondary">등록된 회원사가 없습니다.</p>
@@ -93,23 +101,15 @@ export default function AdminMembersPage() {
             <div key={member.id} className="p-4">
               <p className="font-medium text-text-primary">{member.nameKo}</p>
               <p className="mt-0.5 text-sm text-text-secondary">{member.sector}</p>
-              <p className="mt-0.5 text-xs text-text-muted">
-                {new Date(member.createdAt).toLocaleDateString('ko-KR')}
-              </p>
+              <p className="mt-0.5 text-xs text-text-muted">{new Date(member.createdAt).toLocaleDateString('ko-KR')}</p>
               <div className="mt-3 flex flex-wrap gap-3 text-sm">
                 <Link href={`/admin/members/${member.id}/edit`} className="text-accent hover:underline">
                   수정
                 </Link>
-                <button
-                  onClick={() => openExecutiveModal(member)}
-                  className="text-emerald-500 hover:underline"
-                >
+                <button onClick={() => openExecutiveModal(member)} className="text-emerald-500 hover:underline">
                   임원진 지정
                 </button>
-                <button
-                  onClick={() => handleDelete(member.id, member.nameKo)}
-                  className="text-red-400 hover:underline"
-                >
+                <button onClick={() => handleDelete(member.id, member.nameKo)} className="text-red-400 hover:underline">
                   삭제
                 </button>
               </div>
@@ -118,7 +118,6 @@ export default function AdminMembersPage() {
         )}
       </div>
 
-      {/* Desktop table */}
       <div className="hidden overflow-x-auto rounded-xl border border-[var(--color-border)] md:block">
         <table className="min-w-full text-left text-sm">
           <thead className="bg-bg-secondary text-text-secondary">
@@ -132,7 +131,20 @@ export default function AdminMembersPage() {
           <tbody>
             {members.map((member) => (
               <tr key={member.id} className="border-t border-[var(--color-border)]">
-                <td className="px-4 py-3">{member.nameKo}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    {member.profilePhotoUrl || member.logoUrl ? (
+                      <Image
+                        src={member.profilePhotoUrl || member.logoUrl}
+                        alt={member.nameKo}
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : null}
+                    <span>{member.nameKo}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3">{member.sector}</td>
                 <td className="px-4 py-3">{new Date(member.createdAt).toLocaleDateString('ko-KR')}</td>
                 <td className="px-4 py-3">
@@ -140,16 +152,10 @@ export default function AdminMembersPage() {
                     <Link href={`/admin/members/${member.id}/edit`} className="text-accent hover:underline">
                       수정
                     </Link>
-                    <button
-                      onClick={() => openExecutiveModal(member)}
-                      className="text-emerald-500 hover:underline"
-                    >
+                    <button onClick={() => openExecutiveModal(member)} className="text-emerald-500 hover:underline">
                       임원진 지정
                     </button>
-                    <button
-                      onClick={() => handleDelete(member.id, member.nameKo)}
-                      className="text-red-400 hover:underline"
-                    >
+                    <button onClick={() => handleDelete(member.id, member.nameKo)} className="text-red-400 hover:underline">
                       삭제
                     </button>
                   </div>
@@ -167,7 +173,6 @@ export default function AdminMembersPage() {
         </table>
       </div>
 
-      {/* 임원진 지정 모달 */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-2xl bg-bg-secondary p-6 shadow-xl">
@@ -214,10 +219,7 @@ export default function AdminMembersPage() {
             {modalError && <p className="mt-3 text-sm text-red-400">{modalError}</p>}
 
             <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setModal(null)}
-                className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm"
-              >
+              <button onClick={() => setModal(null)} className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm">
                 취소
               </button>
               <button
