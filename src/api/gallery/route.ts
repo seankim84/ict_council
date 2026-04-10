@@ -39,6 +39,18 @@ export async function createGallery(payload: Omit<GalleryItem, 'id' | 'createdAt
   return mapRow(data);
 }
 
+export async function updateGalleryEvent(
+  oldEventName: string,
+  newEventName: string,
+  newEventDate: string
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('gallery')
+    .update({ event_name: newEventName, event_date: newEventDate })
+    .eq('event_name', oldEventName);
+  return !error;
+}
+
 export async function deleteGallery(id: string): Promise<boolean> {
   const { error } = await supabase.from('gallery').delete().eq('id', id);
   return !error;
