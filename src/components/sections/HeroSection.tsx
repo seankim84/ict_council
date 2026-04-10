@@ -39,7 +39,9 @@ export async function HeroSection() {
           <h1 className="font-heading text-4xl font-bold leading-tight sm:text-5xl lg:text-7xl">
             ICT Network,
             <br />
-            베트남에서 연결되는
+            베트남에서
+            <br />
+            연결되는
             <br />
             한국 ICT의 힘
           </h1>
