@@ -8,6 +8,7 @@ export type MemberSector =
   | 'Infrastructure'
   | 'Cybersecurity'
   | 'EdTech'
+  | 'Contents'
   | '기타';
 
 export const MEMBER_SECTORS: MemberSector[] = [
@@ -20,6 +21,7 @@ export const MEMBER_SECTORS: MemberSector[] = [
   'Infrastructure',
   'Cybersecurity',
   'EdTech',
+  'Contents',
   '기타'
 ];
 
